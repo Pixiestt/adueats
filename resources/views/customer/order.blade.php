@@ -144,9 +144,6 @@
                         <button class="btn btn-outline-primary payment-method" data-method="cash">
                             <i class="fas fa-money-bill-wave me-2"></i>Cash
                         </button>
-                        <button class="btn btn-outline-primary payment-method" data-method="card">
-                            <i class="fas fa-credit-card me-2"></i>Card
-                        </button>
                         <button class="btn btn-outline-primary payment-method" data-method="e-wallet">
                             <i class="fas fa-wallet me-2"></i>E-Wallet
                         </button>
@@ -410,4 +407,4 @@
         }
     });
 </script>
-@endsection 
+@endsection

@@ -34,9 +34,7 @@
                         <td>
                             @if($order->payment_method == 'cash')
                                 <span class="badge bg-success">Cash</span>
-                            @elseif($order->payment_method == 'card')
-                                <span class="badge bg-primary">Card</span>
-                            @else
+                            @elseif($order->payment_method == 'e-wallet')
                                 <span class="badge bg-info">E-Wallet</span>
                             @endif
                         </td>
@@ -76,4 +74,4 @@
         @endif
     </div>
 </div>
-@endsection 
+@endsection

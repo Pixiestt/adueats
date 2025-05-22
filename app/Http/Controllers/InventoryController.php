@@ -3,63 +3,83 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Inventory;
+use App\Models\Product;
+use App\Models\Category; // Add this line
 use Illuminate\Http\Request;
 
 class InventoryController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $query = Inventory::with('product.category');
+        
+        if ($request->has('search') && !empty($request->search)) {
+            $query->whereHas('product', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        if ($request->has('category') && !empty($request->category)) {
+            $query->whereHas('product', function($q) use ($request) {
+                $q->where('category_id', $request->category);
+            });
+        }
+
+        // Get low stock items for the alert
+        $lowStockItems = Inventory::with('product')
+            ->whereRaw('quantity <= minimum_stock')
+            ->get();
+
+        if ($request->has('low_stock')) {
+            $query->whereRaw('quantity <= minimum_stock');
+        }
+        
+        $inventory = $query->orderBy('quantity', 'asc')->paginate(10);
+        $categories = Category::all();
+        
+        return view('inventory.index', compact('inventory', 'categories', 'lowStockItems'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function restock(Request $request)
     {
-        //
+        $request->validate([
+            'items' => 'required|array',
+            'items.*.id' => 'required|exists:inventory,id',
+            'items.*.quantity' => 'required|integer|min:1'
+        ]);
+
+        foreach ($request->items as $item) {
+            $inventory = Inventory::findOrFail($item['id']);
+            $inventory->increment('quantity', $item['quantity']);
+            $inventory->update(['last_restock_date' => now()]);
+        }
+
+        return redirect()->back()
+            ->with('success', 'Items restocked successfully');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function updateStock(Request $request, $id)
     {
-        //
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:0',
+            'minimum_stock' => 'required|integer|min:0'
+        ]);
+
+        $inventory = Inventory::findOrFail($id);
+        $inventory->update([
+            'quantity' => $validated['quantity'],
+            'minimum_stock' => $validated['minimum_stock']
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Inventory updated successfully');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        $inventory = Inventory::with(['product', 'product.category'])->findOrFail($id);
+        $products = Product::all();
+        return view('inventory.edit', compact('inventory', 'products'));
     }
 }

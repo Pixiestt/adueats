@@ -32,11 +32,9 @@
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label for="payment_method" class="form-label">Payment Method</label>
-                        <select class="form-select @error('payment_method') is-invalid @enderror" 
-                            id="payment_method" name="payment_method" required>
-                            <option value="" selected disabled>Select payment method</option>
+                        <select class="form-select @error('payment_method') is-invalid @enderror" id="payment_method" name="payment_method" required>
+                            <option value="">Select Payment Method</option>
                             <option value="cash" {{ old('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
-                            <option value="card" {{ old('payment_method') == 'card' ? 'selected' : '' }}>Card</option>
                             <option value="e-wallet" {{ old('payment_method') == 'e-wallet' ? 'selected' : '' }}>E-Wallet</option>
                         </select>
                         @error('payment_method')
@@ -281,4 +279,4 @@
         updateRemoveButtons();
     });
 </script>
-@endsection 
+@endsection

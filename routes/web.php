@@ -53,7 +53,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     // Inventory management routes
     Route::post('/inventory/restock', [InventoryController::class, 'restock'])->name('inventory.restock');
-    Route::post('/inventory/update-stock', [InventoryController::class, 'updateStock'])->name('inventory.update-stock');
+    Route::post('/inventory/{id}/update-stock', [InventoryController::class, 'updateStock'])->name('inventory.updateStock');
 
     // Analytics routes
     Route::get('/analytics/sales', [AnalyticsController::class, 'sales'])->name('analytics.sales');

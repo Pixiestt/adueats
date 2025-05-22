@@ -53,9 +53,6 @@
                         <i class="fas fa-circle text-primary"></i> Cash
                     </span>
                     <span class="me-2">
-                        <i class="fas fa-circle text-success"></i> Card
-                    </span>
-                    <span class="me-2">
                         <i class="fas fa-circle text-info"></i> E-Wallet
                     </span>
                 </div>
@@ -241,7 +238,7 @@
             item.payment_method.charAt(0).toUpperCase() + item.payment_method.slice(1)
         );
         const paymentValues = salesByPaymentData.map(item => item.total);
-        const paymentColors = ['#4e73df', '#1cc88a', '#36b9cc'];
+        const paymentColors = ['#4e73df', '#36b9cc'];
         
         const salesByPaymentCtx = document.getElementById('salesByPaymentChart').getContext('2d');
         const salesByPaymentChart = new Chart(salesByPaymentCtx, {
@@ -324,4 +321,4 @@
         });
     });
 </script>
-@endsection 
+@endsection

@@ -157,7 +157,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="update-stock-form" action="{{ route('inventory.update-stock') }}" method="POST">
+                <form id="update-stock-form" action="{{ route('inventory.updateStock', ['id' => ':id']) }}" method="POST">
                     @csrf
                     <input type="hidden" name="inventory_id" id="inventory_id">
                     
@@ -199,7 +199,12 @@
             $('#product_name').val(product);
             $('#current_stock').val(current);
             $('#add_quantity').val(10); // Default value
+            
+            // Update form action with the correct ID
+            const form = $('#update-stock-form');
+            const action = form.attr('action').replace(':id', id);
+            form.attr('action', action);
         });
     });
 </script>
-@endsection 
+@endsection

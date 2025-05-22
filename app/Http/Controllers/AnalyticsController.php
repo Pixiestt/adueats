@@ -72,47 +72,59 @@ class AnalyticsController extends Controller
      */
     public function products()
     {
+        // Get total products count
+        $totalProducts = Product::count();
+        
+        // Get active products count
+        $activeProducts = Product::where('status', 'active')->count();
+        
+        // Get low stock products count
+        $lowStockProducts = Inventory::whereRaw('quantity <= minimum_stock')->count();
+        
+        // Get total categories
+        $totalCategories = Category::count();
+
         // Get top selling products
         $topProducts = OrderItem::select(
-                'product_id',
-                'product_name',
-                DB::raw('SUM(quantity) as total_quantity'),
-                DB::raw('SUM(subtotal) as total_sales')
-            )
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->where('orders.status', 'completed')
-            ->groupBy('product_id', 'product_name')
-            ->orderByDesc('total_quantity')
-            ->limit(10)
-            ->get();
+            'products.id as product_id',
+            'products.name as product_name',
+            DB::raw('SUM(order_items.quantity) as total_quantity'),
+            DB::raw('SUM(order_items.subtotal) as total_sales')
+        )
+        ->join('orders', 'order_items.order_id', '=', 'orders.id')
+        ->join('products', 'order_items.product_id', '=', 'products.id')
+        ->where('orders.status', 'completed')
+        ->groupBy('products.id', 'products.name')
+        ->orderByDesc('total_quantity')
+        ->limit(10)
+        ->get();
             
-        // Get sales by category
-        $salesByCategory = OrderItem::select(
-                'categories.id as category_id',
-                'categories.name as category_name',
-                DB::raw('SUM(order_items.subtotal) as total_sales')
-            )
-            ->join('orders', 'order_items.order_id', '=', 'orders.id')
-            ->join('products', 'order_items.product_id', '=', 'products.id')
-            ->join('categories', 'products.category_id', '=', 'categories.id')
-            ->where('orders.status', 'completed')
-            ->groupBy('categories.id', 'categories.name')
-            ->orderByDesc('total_sales')
-            ->get();
+        // Get products by category
+        $productsByCategory = Product::select(
+            'categories.name as category',
+            DB::raw('COUNT(*) as count')
+        )
+        ->join('categories', 'products.category_id', '=', 'categories.id')
+        ->groupBy('categories.id', 'categories.name')
+        ->get();
             
         // Get sales by time of day
         $salesByHour = Order::select(
-                DB::raw('HOUR(created_at) as hour'),
-                DB::raw('SUM(total_amount) as total')
-            )
-            ->where('status', 'completed')
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get();
+            DB::raw("strftime('%H', created_at) as hour"),
+            DB::raw('SUM(total_amount) as total')
+        )
+        ->where('status', 'completed')
+        ->groupBy('hour')
+        ->orderBy('hour')
+        ->get();
             
         return view('analytics.products', compact(
+            'totalProducts',
+            'activeProducts',
+            'lowStockProducts',
+            'totalCategories',
             'topProducts',
-            'salesByCategory',
+            'productsByCategory',
             'salesByHour'
         ));
     }

@@ -53,6 +53,11 @@
             right: 0;
             left: auto;
         }
+        /* Hide extra pagination arrows */
+        .pagination nav > div:first-child,
+        .pagination nav > div:last-child {
+            display: none;
+        }
     </style>
     @yield('styles')
 </head>
@@ -189,4 +194,4 @@
     
     @yield('scripts')
 </body>
-</html> 
+</html>
